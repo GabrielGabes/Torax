@@ -1,0 +1,170 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+str(df)
+```
+
+```{r}
+library(scatterPlotMatrix)
+scatterPlotMatrix(df, zAxisDim = "`Realização_de_bloqueio_do_plano_eretor_da_espinha_(sim_ou_não)`")
+```
+#DESCRIÇÃO DOS DADOS NÚMERICOS===============================================================================================
+
+```{r}
+
+teste_normalidade = function(dados, coluna){
+  if(coluna>ncol(dados)){
+    stop("numero da coluna informada maior que o numero de coluna do dataframe")
+  }
+  dados = as.data.frame(dados)
+  var = dados[[coluna]]
+  var.df = dados[coluna]
+  
+  shapiro = shapiro.test(var)
+  p_valor.shapiro = format.pval(pv = shapiro$p.value, digits = 3, eps=0.001, nsmall=3)
+  estatis.shapiro = round(shapiro$statistic,2)
+  media = mean(var, na.rm=T)
+  desvpad = sd(var, na.rm=T)
+  
+  p=ggplot(var.df, aes_string(x=names(var.df)))+
+    geom_histogram(aes(y=..density..), bins=30, fill='tomato', col=alpha('red',.2)) +
+    geom_function(fun=dnorm,args=list(mean=media,sd=desvpad),col='black',lwd=1.,lty=4) +
+    geom_density(lwd = 1.2, linetype = 2, colour = "red") +
+    labs(#title='Teste de Normalidade', #titulo principal
+         y='Densidade de probabildade',subtitle=paste0('Shapiro-Wilk = ',estatis.shapiro," p-value = ",p_valor.shapiro)) +
+    theme_minimal() + theme(plot.title=element_text(face='italic'), axis.title=element_text(size=9, face='italic'))
+  
+  #print(p)
+}
+
+teste_normalidade(df, 4)
+```
+
+```{r}
+# for (i in c(4,6,7,8)){
+#   teste_normalidade(df, i)
+# }
+# summary(df[c(4,6,7,8)])
+
+p1 = teste_normalidade(df, 4) + labs(title = "Idade")
+p2 = teste_normalidade(df, 6) + labs(title = "Peso")
+p3 = teste_normalidade(df, 7) + labs(title = "Altura")
+p4 = teste_normalidade(df, 8) + labs(title = "IMC")
+
+plot_grid(p1, p2, p3, p4, ncol=2, nrow=2)
+summary(df[c(4,6,7,8)])
+```
+
+```{r}
+for (i in c(36, 39, 42, 46, 53)){
+  teste_normalidade(df, i)
+}
+
+p1 = teste_normalidade(df, 36) + labs(title = "Duração da Cirurgia (min)")
+p2 = teste_normalidade(df, 39) + labs(title = "Tempo de Permanencia na RPA (min)")
+p3 = teste_normalidade(df, 42) + labs(title = "Tempo com Dreno de Torax (min)")
+p4 = teste_normalidade(df, 46) + labs(title = "Tempo de Internação após a cirurgia (min)")
+p5 = teste_normalidade(df, 53) + labs(title = "Tempo para uso da primeira dose de oxicodona (min)")
+
+plot_grid(p1, p2, p3, p4, ncol=2, nrow=2)
+
+summary(df[c(36, 39, 42, 46, 53)])
+```
+```{r}
+ p=ggplot(var.df, aes_string(x=names(var.df)))+
+    geom_histogram(aes(y=..density..), bins=30, fill='tomato', col=alpha('red',.2)) +
+    geom_function(fun=dnorm,args=list(mean=media,sd=desvpad),col='black',lwd=1.,lty=4) +
+    geom_density(lwd = 1.2, linetype = 2, colour = "red") +
+    labs(#title='Teste de Normalidade', #titulo principal
+         y='Densidade de probabildade',subtitle=paste0('Shapiro-Wilk = ',estatis.shapiro," p-value = ",p_valor.shapiro)) +
+    theme_minimal() + theme(plot.title=element_text(face='italic'), axis.title=element_text(size=9, face='italic'))
+  
+
+ggplot(df) + geom_boxplot(aes(y=idade, x=realizacao_de_bloqueio_do_plano_eretor_da_espinha))
+
+table(df$realizacao_de_bloqueio_do_plano_eretor_da_espinha, idade.cut)
+```
+
+#DESCRIÇÃO DOS DADOS CATEGÓRICOS===============================================================================================
+Colunas:
+"id","sexo","hipertensao_arterial","dm","dpoc","outras_comorbidades","cirurgia","lateralidade","desmetomedina","ketamina",
+"lidocaina","realizacao_de_bloqueio_do_plano_eretor_da_espinha","passagem_de_cateter_no_plano_eretor_da_espinha",
+"programacao_da_PCA","opioide_de_resgate_na_RPA","encaminhamento_para_UTI_no_pos_operatorio","uso_de_opioide_prescrito_de_horário_nas_primeiras_24h",
+"uso_de_opioide_nas_primeiras_36h","uso_de_pregabalina_na_internacao","uso_de_gabapentina_na_internacao",
+"dor_com_escala_verbal_numérica_maior_que_maior_que_3_na_internacao","uso_de_opioide_de_resgate_nas_primeiras_24h",
+"uso_de_opioide_de_resgate_na_primeiras_36h","asa"
+
+```{r}
+#função tabela contagem
+cont = function(var1){
+  df %>% tabyl(.data[[var1]]) %>% adorn_pct_formatting() %>% print()
+  #%>% arrange(desc(n)) #ordem dos dados
+}
+
+cont("asa") %>% write_clip(dec = ",", col.names = TRUE)
+```
+
+```{r}
+conti = function(var1){
+  df %>% tabyl(.data[[var1]], realizacao_de_bloqueio_do_plano_eretor_da_espinha) %>% adorn_percentages() %>% adorn_pct_formatting(2) %>% adorn_ns %>% print() 
+}
+
+conti("asa") %>% write_clip(dec = ",", col.names = TRUE)
+```
+
+```{r}
+#Capturando chisq
+
+cols <- c("id","sexo","hipertensao_arterial","dm","dpoc","outras_comorbidades","cirurgia","lateralidade","desmetomedina","ketamina",
+"lidocaina","passagem_de_cateter_no_plano_eretor_da_espinha",
+"programacao_da_PCA","opioide_de_resgate_na_RPA","encaminhamento_para_UTI_no_pos_operatorio","uso_de_opioide_prescrito_de_horário_nas_primeiras_24h",
+"uso_de_opioide_nas_primeiras_36h","uso_de_pregabalina_na_internacao","uso_de_gabapentina_na_internacao",
+"dor_com_escala_verbal_numérica_maior_que_maior_que_3_na_internacao","uso_de_opioide_de_resgate_nas_primeiras_24h",
+"uso_de_opioide_de_resgate_na_primeiras_36h","asa") #colunas
+
+#capturando p-valor
+map_dbl(cols, ~chisq.test(df %>% tabyl(realizacao_de_bloqueio_do_plano_eretor_da_espinha, .data[[.x]]))$p.value) %>% #passando map
+  t %>% #valor chiq
+  as.data.frame() %>% #colocando valor no dataframe
+  setNames(cols) %>% #deixa nome da coluna
+  write_clip(dec = ",", col.names = TRUE) #capturando valores para colar no excel
+
+chisq.test(df$realizacao_de_bloqueio_do_plano_eretor_da_espinha, df$sexo)
+
+#capturando x-squared
+map_dbl(cols, ~chisq.test(df %>% tabyl(asa, .data[[.x]]))$statistic) %>% #passando map
+  t %>% #valor chiq
+  as.data.frame() %>% #colocando valor no dataframe
+  setNames(cols) %>% #deixa nome da coluna
+  write_clip(dec = ".", col.names = TRUE) #capturando valores para colar no excel
+```
+
+```{r}
+#função tabela de contingencia
+tab_cont = function(dat, var1, var2){
+  dat %>% tabyl({{var1}}, {{var2}}) %>%
+    adorn_percentages() %>% adorn_pct_formatting(2) %>% adorn_ns()
+}
+```
+
+```{r}
+cols = c("sexo","hipertensao_arterial","dm","dpoc","outras_comorbidades","cirurgia","lateralidade","desmetomedina","ketamina",
+         "lidocaina","realizacao_de_bloqueio_do_plano_eretor_da_espinha","passagem_de_cateter_no_plano_eretor_da_espinha",
+         "programacao_da_PCA","opioide_de_resgate_na_RPA","encaminhamento_para_UTI_no_pos-operatório","uso_de_opioide_prescrito_de_horário_nas_primeiras_24h",
+         "uso_de_opioide_nas_primeiras_36h","uso_de_pregabalina_na_internacao","uso_de_gabapentina_na_internacao",
+         "dor_com_escala_verbal_numérica_maior_que_maior_que_3_na_internacao","uso_de_opióide_de_resgate_nas_primeiras_24h",
+         "uso_de_opioide_de_resgate_na_primeiras_36h")
+
+for (i in cols){
+  print(tab_cont(df,.data[[i]], asa))
+  print("==============================")
+}
+
+```

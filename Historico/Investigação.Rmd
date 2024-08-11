@@ -1,0 +1,85 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(readxl)
+df <- read_excel("projetos/Trabalho - Terra Torax/base.xlsx", 
++     col_types = c("text", "text", "numeric", 
++         "numeric", "text", "numeric", "numeric", 
++         "numeric", "text", "text", "text", 
++         "text", "numeric", "text", "text", 
++         "numeric", "numeric", "numeric", 
++         "text", "text", "numeric", "text", 
++         "text", "numeric", "numeric", "text", 
++         "text", "numeric", "numeric", "numeric", 
++         "numeric", "date", "date", "date", 
++         "numeric", "numeric", "date", "numeric", 
++         "numeric", "date", "numeric", "numeric", 
++         "numeric", "numeric", "text", "text", 
++         "text", "text", "date", "numeric", 
++         "text", "text", "text", "text", "text"))
+```
+
+#TABELAS DE CONTIGENCIA
+
+```{r}
+tab = table(df$`Opióide de resgate na RPA (sim ou não)`, df$`Realização de bloqueio do plano eretor da espinha (sim ou não)`)
+tab
+chisq.test(tab, correct=FALSE) #Qui quadrado(Pearson chi2(2)) e P-value(Pr):
+```
+
+```{r}
+tab = table(df$`Uso de opióide prescrito de horário nas primeiras 24 horas`, df$`Realização de bloqueio do plano eretor da espinha (sim ou não)`)
+tab
+chisq.test(tab, correct=FALSE)
+```
+
+```{r}
+tab = table(df$`uso de opióide nas primeiras 36 horas`, df$`Realização de bloqueio do plano eretor da espinha (sim ou não)`)
+tab
+chisq.test(tab, correct=FALSE)
+```
+
+```{r}
+tab = table(df$`Dor com escala verbal numérica maior que maior que 3 na internação (sim ou não)`, df$`Realização de bloqueio do plano eretor da espinha (sim ou não)`)
+tab
+chisq.test(tab, correct=FALSE)
+```
+
+```{r}
+tab = table(df$`Uso de opióide de resgate nas primeiras 24 horas (sim ou não)`, df$`Realização de bloqueio do plano eretor da espinha (sim ou não)`)
+tab
+chisq.test(tab, correct=FALSE)
+```
+
+```{r}
+tab = table(df$`Uso de opioide de resgate na primeiras 36 horas (sim ou não)`, df$`Realização de bloqueio do plano eretor da espinha (sim ou não)`)
+tab
+chisq.test(tab, correct=FALSE)
+```
+
+```{r}
+summary(df$Idade)
+summary(df$`Peso (kg)`)
+summary(df$`Altura (m)`)
+summary(df$IMC)
+summary(df$`Fentanil (dose ou na)`)
+summary(df$`Sufentanil (dose ou na)`)
+summary(df$`Dose de metadona (dose ou na)`)
+summary(df$`Dose de sulfato de magnésio (dose ou na)`)
+```
+
+```{r}
+summary(df)
+```
+
+```{r}
+
+```
+
